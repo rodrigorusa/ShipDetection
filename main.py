@@ -1,3 +1,4 @@
+import time
 import argparse
 import pandas as pd
 import numpy as np
@@ -139,8 +140,15 @@ def main():
     train_set, valid_set = init_dataset(args.train_csv)
 
     if args.model_file is None:
+        # Start time
+        start = time.time()
+        
         # Train model
         model = train_model(train_set, valid_set)
+
+        # Elapsed time
+        end = time.time()
+        print('Elapsed training time: ' + str(end - start) + ' seconds')
     else:
         # Load model
         model = joblib.load(args.model_file)

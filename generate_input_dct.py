@@ -7,6 +7,8 @@ import sklearn.metrics as metric
 
 from skimage import io
 from skimage import transform
+from skimage.color import rgb2gray
+from scipy import fftpack
 
 parser = argparse.ArgumentParser(description='Generate input csv')
 parser.add_argument('-csv', dest='csv_file', type=str, required=True)
@@ -37,23 +39,27 @@ def generate(csv_file, images_folder, fraction):
     print("Number of samples: ", m)
 
     # Create empty dataframe
-    x = np.empty((0, 64*64*3), np.uint8)
+    x = np.empty((0, 128*128), float)
 
     for i in range(m):
+        #print(df_set.iloc[i, 1])
+
         # Read image
         image_path = images_folder + '/' + df_set.iloc[i, 0]
         img = io.imread(image_path)
 
+        # Convert to grayscale
+        img_gray = rgb2gray(img)
+
+        # Compute DCT
+        dct = fftpack.dct(fftpack.dct(img_gray.T, norm='ortho').T, norm='ortho')
+        dct = np.abs(dct)
+
         # Downscale
-        img_t = transform.downscale_local_mean(img, (12, 12, 1))
-        img_t = img_t.astype(np.uint8)
-
-        #plt.imshow(img_t.astype(np.uint8))
-        #plt.show()
-
+        dct_t = transform.downscale_local_mean(dct, (6, 6))
+        
         # Append to dataframe
-        rgb = np.reshape(img_t, (-1, 3))
-        array = np.concatenate((rgb[:, 0], rgb[:, 1], rgb[:, 2]))
+        array = np.reshape(dct_t, (-1))
         x = np.vstack((x, array))
 
     # Column names
