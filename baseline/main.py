@@ -49,10 +49,10 @@ def train_model(train_set, valid_set):
     x = train_set.iloc[:, 2:].values
 
     # Normalize
-    x = x/255.0
+    #x = x/255.0
 
     # Setup the classifier
-    model = MLPClassifier(hidden_layer_sizes=(4096, 2048), activation='relu', max_iter=1000, learning_rate_init=0.001, verbose=10)
+    model = MLPClassifier(hidden_layer_sizes=(2048, 1024), activation='relu', max_iter=1000, learning_rate_init=0.001, verbose=10)
     
     # Training the model
     print('Training model...')
@@ -85,7 +85,7 @@ def validation(model, valid_set):
     x = valid_set.iloc[:, 2:].values
 
     # Normalize
-    x = x/255.0
+    #x = x/255.0
 
     # Predict labels
     print('Validation:')
