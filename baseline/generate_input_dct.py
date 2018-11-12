@@ -33,7 +33,7 @@ def generate(csv_file, images_folder, fraction):
     df_dropped = df.drop_duplicates(['ImageId'], keep='first')
 
     # Select a fraction of samples
-    df_set = df_dropped.sample(frac=fraction)
+    df_set = df_dropped.sample(frac=fraction, random_state=1)
 
     m = df_set.shape[0]
     print("Number of samples: ", m)
@@ -42,8 +42,6 @@ def generate(csv_file, images_folder, fraction):
     x = np.empty((0, 128*128), float)
 
     for i in range(m):
-        #print(df_set.iloc[i, 1])
-
         # Read image
         image_path = images_folder + '/' + df_set.iloc[i, 0]
         img = io.imread(image_path)
@@ -55,12 +53,21 @@ def generate(csv_file, images_folder, fraction):
         dct = fftpack.dct(fftpack.dct(img_gray.T, norm='ortho').T, norm='ortho')
         dct = np.abs(dct)
 
+        # Compute RGB DCT
+        #dct = fftpack.dct(fftpack.dct(img.T, norm='ortho').T, norm='ortho')
+        #dct = np.abs(dct)
+
         # Downscale
         dct_t = transform.downscale_local_mean(dct, (6, 6))
-        
+
         # Append to dataframe
         array = np.reshape(dct_t, (-1))
         x = np.vstack((x, array))
+
+        # Append to dataframe
+        #rgb = np.reshape(dct_t, (-1, 3))
+        #array = np.concatenate((rgb[:, 0], rgb[:, 1], rgb[:, 2]))
+        #x = np.vstack((x, array))
 
     # Column names
     column_names = ['ImageId', 'Label']

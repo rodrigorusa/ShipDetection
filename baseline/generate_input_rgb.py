@@ -31,13 +31,13 @@ def generate(csv_file, images_folder, fraction):
     df_dropped = df.drop_duplicates(['ImageId'], keep='first')
 
     # Select a fraction of samples
-    df_set = df_dropped.sample(frac=fraction)
+    df_set = df_dropped.sample(frac=fraction, random_state=1)
 
     m = df_set.shape[0]
     print("Number of samples: ", m)
 
     # Create empty dataframe
-    x = np.empty((0, 64*64*3), np.uint8)
+    x = np.empty((0, 128*128*3), np.uint8)
 
     for i in range(m):
         # Read image
@@ -45,11 +45,8 @@ def generate(csv_file, images_folder, fraction):
         img = io.imread(image_path)
 
         # Downscale
-        img_t = transform.downscale_local_mean(img, (12, 12, 1))
+        img_t = transform.downscale_local_mean(img, (6, 6, 1))
         img_t = img_t.astype(np.uint8)
-
-        #plt.imshow(img_t.astype(np.uint8))
-        #plt.show()
 
         # Append to dataframe
         rgb = np.reshape(img_t, (-1, 3))
